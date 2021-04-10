@@ -1,139 +1,212 @@
-import React from "react"
+import { useEffect, useState } from "react"
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableContainer,
+	TablePagination,
+	TableRow,
+	Checkbox,
+	Chip,
+	makeStyles,
+} from "@material-ui/core"
 
-import { DataGrid } from "@material-ui/data-grid"
-import { makeStyles, Paper } from "@material-ui/core"
+import TableHead from "./TableHead"
+import axios from "axios"
 
-const columns = [
-	{ field: "name", headerName: "NAME", width: 200 },
-	{ field: "lastUpdated", headerName: "LAST UPDATED", width: 200 },
-	{ field: "cogs", headerName: "COGS%", width: 200 },
-	{
-		field: "cost",
-		headerName: "COST PRICE",
-		type: "number",
-		width: 90,
+const useStyles = makeStyles((theme) => ({
+	root: {
+		width: "100%",
+		padding: "12px 0px",
 	},
-	{
-		field: "sale",
-		headerName: "SALE PRICE",
-		description: "This column has a value getter and is not sortable.",
-		sortable: false,
-		width: 160,
-		valueGetter: (params) =>
-			`${params.getValue("firstName") || ""} ${
-				params.getValue("lastName") || ""
-			}`,
+	paper: {
+		width: "100%",
+		marginBottom: theme.spacing(2),
 	},
-	{
-		field: "grossMargin",
-		headerName: "GROSS MARGIN",
-		type: "number",
-		width: 90,
+	visuallyHidden: {
+		border: 0,
+		clip: "rect(0 0 0 0)",
+		height: 1,
+		margin: -1,
+		overflow: "hidden",
+		padding: 0,
+		position: "absolute",
+		top: 20,
+		width: 1,
 	},
-	{
-		field: "tags",
-		headerName: "TAGS/ACTIONS",
-		width: 90,
+	tableHead: {
+		backgroundColor: "#84a9ff",
+		color: "#fff",
 	},
-]
+}))
 
-const rows = [
-	{
-		id: 1,
-		name: 1,
-		lastUpdated: "Snow",
-		cogs: "Jon",
-		cost: 35,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 2,
-		name: 2,
-		lastUpdated: "Lannister",
-		cogs: "Cersei",
-		cost: 42,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 3,
-		name: 3,
-		lastUpdated: "Lannister",
-		cogs: "Jaime",
-		cost: 45,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 4,
-		name: 4,
-		lastUpdated: "Stark",
-		cogs: "Arya",
-		cost: 16,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 5,
-		name: 5,
-		lastUpdated: "Targaryen",
-		cogs: "Daenerys",
-		cost: null,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 6,
-		name: 6,
-		lastUpdated: "Melisandre",
-		cogs: null,
-		cost: 150,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 7,
-		name: 7,
-		lastUpdated: "Clifford",
-		cogs: "Ferrara",
-		cost: 44,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 8,
-		name: 8,
-		lastUpdated: "Frances",
-		cogs: "Rossini",
-		cost: 36,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-	{
-		id: 9,
-		name: 9,
-		lastUpdated: "Roxie",
-		cogs: "Harvey",
-		cost: 65,
-		sale: 1400,
-		grossMargin: 10,
-		tags: "Indian",
-	},
-]
+const baseUrl =
+	"https://beta.eagleowl.in/api/v1/mock/organization/18/outlet/18/recipe/recipes"
 
-export default function TableComponent() {
+export default function EnhancedTable() {
+	const classes = useStyles()
+	const [selected, setSelected] = useState([])
+	const [page, setPage] = useState(0)
+	const [rowsPerPage, setRowsPerPage] = useState(5)
+	const [rows, setRows] = useState([])
+
+	const getRecipesByPagination = async (page = 1) => {
+		const query = `${baseUrl}/?page=${page}`
+		const response = await axios.get(query)
+		let data = response.data
+
+		data = data.results.map((elm) => {
+			return {
+				name: elm.name,
+				lastUpdated: elm.last_updated.date,
+				cogs: elm.cogs,
+				cost: elm.cost_price.toFixed(2),
+				sale: elm.sale_price.toFixed(2),
+				grossMargin: elm.gross_margin.toFixed(2),
+				tags: elm.categories,
+			}
+		})
+
+		if (data.length > 0) {
+			return data.concat(await getRecipesByPagination(page + 1))
+		} else {
+			return data
+		}
+	}
+
+	const getNewData = async () => {
+		const data = await getRecipesByPagination()
+		console.log("data from paginated api", data)
+		setRows(data)
+	}
+
+	useEffect(() => {
+		getNewData()
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	const handleSelectAllClick = (event) => {
+		if (event.target.checked) {
+			const newSelecteds = rows.map((n) => n.name)
+			setSelected(newSelecteds)
+			return
+		}
+		setSelected([])
+	}
+
+	const handleClick = (event, name) => {
+		const selectedIndex = selected.indexOf(name)
+		let newSelected = []
+
+		if (selectedIndex === -1) {
+			newSelected = newSelected.concat(selected, name)
+		} else if (selectedIndex === 0) {
+			newSelected = newSelected.concat(selected.slice(1))
+		} else if (selectedIndex === selected.length - 1) {
+			newSelected = newSelected.concat(selected.slice(0, -1))
+		} else if (selectedIndex > 0) {
+			newSelected = newSelected.concat(
+				selected.slice(0, selectedIndex),
+				selected.slice(selectedIndex + 1)
+			)
+		}
+
+		setSelected(newSelected)
+	}
+
+	const handleChangePage = (event, newPage) => {
+		setPage(newPage)
+	}
+
+	const handleChangeRowsPerPage = (event) => {
+		setRowsPerPage(parseInt(event.target.value, 10))
+		setPage(0)
+	}
+
+	const isSelected = (name) => selected.indexOf(name) !== -1
+
+	const emptyRows =
+		rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
+
 	return (
-		<Paper style={{ height: 400, width: "100%" }} className="table-class">
-			<DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection />
-		</Paper>
+		<div className={classes.root}>
+			<TableContainer>
+				<Table
+					aria-labelledby="tableTitle"
+					size="medium"
+					aria-label="enhanced table"
+				>
+					<TableHead
+						classes={classes}
+						numSelected={selected.length}
+						onSelectAllClick={handleSelectAllClick}
+						rowCount={rows.length}
+					/>
+					<TableBody>
+						{rows &&
+							rows
+								.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+								.map((row, index) => {
+									const isItemSelected = isSelected(row.name)
+									const labelId = `enhanced-table-checkbox-${index}`
+
+									return (
+										<TableRow
+											hover
+											onClick={(event) => handleClick(event, row.name)}
+											role="checkbox"
+											aria-checked={isItemSelected}
+											tabIndex={-1}
+											key={row.name}
+											selected={isItemSelected}
+										>
+											<TableCell padding="checkbox">
+												<Checkbox
+													checked={isItemSelected}
+													inputProps={{ "aria-labelledby": labelId }}
+												/>
+											</TableCell>
+											<TableCell component="th" id={labelId} scope="row">
+												{row.name}
+											</TableCell>
+											<TableCell>
+												{new Date(row.lastUpdated)
+													.toDateString()
+													.split(" ")
+													.slice(1)
+													.join(" ")}
+											</TableCell>
+											<TableCell align="right">{row.cogs}%</TableCell>
+											<TableCell align="right">{row.cost}</TableCell>
+											<TableCell align="right">{row.sale}</TableCell>
+											<TableCell align="right">{row.grossMargin}%</TableCell>
+											<TableCell>
+												{" "}
+												{row.tags.map((tag, index) => (
+													<Chip label={tag.name} key={index} />
+												))}
+											</TableCell>
+										</TableRow>
+									)
+								})}
+						{emptyRows > 0 && (
+							<TableRow style={{ height: 53 * emptyRows }}>
+								<TableCell colSpan={6} />
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+			</TableContainer>
+			<TablePagination
+				rowsPerPageOptions={[5, 10, 25]}
+				component="div"
+				count={rows.length}
+				rowsPerPage={rowsPerPage}
+				page={page}
+				onChangePage={handleChangePage}
+				onChangeRowsPerPage={handleChangeRowsPerPage}
+			/>
+		</div>
 	)
 }

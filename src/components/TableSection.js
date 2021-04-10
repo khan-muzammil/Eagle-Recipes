@@ -1,4 +1,4 @@
-import { AppBar, Box, Tab, Tabs, Typography } from "@material-ui/core"
+import { AppBar, Box, Container, Paper, Tab, Tabs } from "@material-ui/core"
 import React from "react"
 import TableComponent from "./TableComponent"
 
@@ -10,7 +10,10 @@ export default function TableSection() {
 	}
 	return (
 		<div style={{ marginTop: 20, width: "98%" }}>
-			<AppBar position="static">
+			<AppBar
+				position="static"
+				style={{ color: "#000", backgroundColor: "#fff" }}
+			>
 				<Tabs
 					value={value}
 					onChange={handleChange}
@@ -23,13 +26,33 @@ export default function TableSection() {
 				</Tabs>
 			</AppBar>
 			<TabPanel value={value} index={0}>
-				<TableComponent />
+				<Paper>
+					<TableComponent />
+				</Paper>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				No data available
+				<Paper
+					style={{
+						height: 400,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					No data available
+				</Paper>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
-				No data available
+				<Paper
+					style={{
+						height: 400,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					No data available
+				</Paper>
 			</TabPanel>
 		</div>
 	)
@@ -47,9 +70,9 @@ function TabPanel(props) {
 			{...other}
 		>
 			{value === index && (
-				<Box>
-					<Typography>{children}</Typography>
-				</Box>
+				<Container style={{ margin: 0, padding: 0, maxWidth: "unset" }}>
+					<Box as={Container}>{children}</Box>
+				</Container>
 			)}
 		</div>
 	)

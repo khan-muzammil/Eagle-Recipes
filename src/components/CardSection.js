@@ -28,7 +28,6 @@ const useStyles = makeStyles((theme) => ({
 	progressComponenet: {
 		textAlign: "center",
 		margin: "0px 10px",
-		/* width: "100px", */
 	},
 	progressTitle: {
 		wordWrap: "break-word",
