@@ -12,7 +12,12 @@ import {
 } from "@material-ui/core"
 
 import TableHead from "./TableHead"
-import axios from "axios"
+import {
+	getRecipesByPagination,
+	getIncorrectDataByPagination,
+	getUntaggedDataByPagination,
+	getDisabledDataByPagination,
+} from "../lib/utils"
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -40,48 +45,51 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-const baseUrl =
-	"https://beta.eagleowl.in/api/v1/mock/organization/18/outlet/18/recipe/recipes"
-
-export default function EnhancedTable() {
+export default function EnhancedTable({ type }) {
 	const classes = useStyles()
 	const [selected, setSelected] = useState([])
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(5)
 	const [rows, setRows] = useState([])
 
-	const getRecipesByPagination = async (page = 1) => {
-		const query = `${baseUrl}/?page=${page}`
-		const response = await axios.get(query)
-		let data = response.data
-
-		data = data.results.map((elm) => {
-			return {
-				name: elm.name,
-				lastUpdated: elm.last_updated.date,
-				cogs: elm.cogs,
-				cost: elm.cost_price.toFixed(2),
-				sale: elm.sale_price.toFixed(2),
-				grossMargin: elm.gross_margin.toFixed(2),
-				tags: elm.categories,
-			}
-		})
-
-		if (data.length > 0) {
-			return data.concat(await getRecipesByPagination(page + 1))
-		} else {
-			return data
-		}
-	}
-
-	const getNewData = async () => {
+	const getAllData = async () => {
 		const data = await getRecipesByPagination()
-		console.log("data from paginated api", data)
+		console.log("All data from paginated api", data)
+		setRows(data)
+	}
+	const getIncorrectData = async () => {
+		const data = await getIncorrectDataByPagination()
+		console.log("Incorrect Recipes data from paginated api", data)
+		setRows(data)
+	}
+	const getUntaggedData = async () => {
+		const data = await getUntaggedDataByPagination()
+		console.log("Untagged data from paginated api", data)
+		setRows(data)
+	}
+	const getDisabledData = async () => {
+		const data = await getDisabledDataByPagination()
+		console.log("Disabled data from paginated api", data)
 		setRows(data)
 	}
 
 	useEffect(() => {
-		getNewData()
+		switch (type) {
+			case "all":
+				getAllData()
+				break
+			case "incorrect":
+				getIncorrectData()
+				break
+			case "untagged":
+				getUntaggedData()
+				break
+			case "disabled":
+				getDisabledData()
+				break
+			default:
+				break
+		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -144,7 +152,7 @@ export default function EnhancedTable() {
 						rowCount={rows.length}
 					/>
 					<TableBody>
-						{rows &&
+						{rows.length > 0 ? (
 							rows
 								.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 								.map((row, index) => {
@@ -189,7 +197,19 @@ export default function EnhancedTable() {
 											</TableCell>
 										</TableRow>
 									)
-								})}
+								})
+						) : (
+							<TableRow>
+								<TableCell
+									component="th"
+									scope="row"
+									align="center"
+									colSpan={7}
+								>
+									No data available
+								</TableCell>
+							</TableRow>
+						)}
 						{emptyRows > 0 && (
 							<TableRow style={{ height: 53 * emptyRows }}>
 								<TableCell colSpan={6} />

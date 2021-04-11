@@ -65,28 +65,26 @@ export default function RecipeCardByFluctuation() {
 			<CardContent style={{ display: "flex" }}>
 				{data &&
 					data.map((elem, id) => (
-						<>
-							<div className={classes.progressComponenet} key={elem.name}>
-								<p className={classes.progressTitle}>{elem.name}</p>
-								{Math.random() * 10 > 5 ? (
-									<Typography
-										variant="h6"
-										component="div"
-										className={classes.redText}
-									>
-										{`${Math.round(elem.fluctuation)}%`} ⇩
-									</Typography>
-								) : (
-									<Typography
-										variant="h6"
-										component="div"
-										className={classes.greenText}
-									>
-										{`${Math.round(elem.fluctuation)}%`} ⇧
-									</Typography>
-								)}
-							</div>
-						</>
+						<div className={classes.progressComponenet} key={elem.name}>
+							<p className={classes.progressTitle}>{elem.name}</p>
+							{Math.random() * 10 > 5 ? (
+								<Typography
+									variant="h6"
+									component="div"
+									className={classes.redText}
+								>
+									{`${Math.round(elem.fluctuation)}%`} ⇩
+								</Typography>
+							) : (
+								<Typography
+									variant="h6"
+									component="div"
+									className={classes.greenText}
+								>
+									{`${Math.round(elem.fluctuation)}%`} ⇧
+								</Typography>
+							)}
+						</div>
 					))}
 			</CardContent>
 		</Card>

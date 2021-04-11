@@ -22,36 +22,27 @@ export default function TableSection() {
 					<Tab label="All Recipe(s)" />
 					<Tab label="Incorrect" />
 					<Tab label="Untagged" />
-					<Tab label="disabled" disabled />
+					<Tab label="disabled" />
 				</Tabs>
 			</AppBar>
 			<TabPanel value={value} index={0}>
 				<Paper>
-					<TableComponent />
+					<TableComponent type="all" />
 				</Paper>
 			</TabPanel>
 			<TabPanel value={value} index={1}>
-				<Paper
-					style={{
-						height: 400,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					No data available
+				<Paper>
+					<TableComponent type="incorrect" />
 				</Paper>
 			</TabPanel>
 			<TabPanel value={value} index={2}>
-				<Paper
-					style={{
-						height: 400,
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-					}}
-				>
-					No data available
+				<Paper>
+					<TableComponent type="untagged" />
+				</Paper>
+			</TabPanel>
+			<TabPanel value={value} index={3}>
+				<Paper>
+					<TableComponent type="disabled" />
 				</Paper>
 			</TabPanel>
 		</div>

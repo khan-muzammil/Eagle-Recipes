@@ -68,20 +68,18 @@ export default function RecipeCardByMargin({ marginOrder }) {
 			<CardContent style={{ display: "flex" }}>
 				{data &&
 					data.map((elem, id) => (
-						<>
-							<div className={classes.progressComponenet} key={elem.name}>
-								<p className={classes.progressTitle}>{elem.name}</p>
-								<CircularProgressWithLabel
-									variant="determinate"
-									value={elem.margin}
-									className={
-										marginOrder
-											? classes.circularProgress
-											: classes.circularProgressRed
-									}
-								/>
-							</div>
-						</>
+						<div className={classes.progressComponenet} key={elem.name}>
+							<p className={classes.progressTitle}>{elem.name}</p>
+							<CircularProgressWithLabel
+								variant="determinate"
+								value={elem.margin}
+								className={
+									marginOrder
+										? classes.circularProgress
+										: classes.circularProgressRed
+								}
+							/>
+						</div>
 					))}
 			</CardContent>
 		</Card>
